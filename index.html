@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameCo. KioskOS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Inter and Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Font Icons (Material Symbols) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+        /* Custom styles for the Inter font and overall layout */
+        :root {
+            /* Tech Theme (Default - Cyber Blue) */
+            --theme-primary: #22d3ee; /* cyan-400 */
+            --theme-primary-border: rgba(34, 211, 238, 0.3);
+            --theme-primary-border-hover: rgba(110, 231, 255, 0.6);
+            --theme-primary-glow: rgba(34, 211, 238, 0.2);
+            --theme-button-bg: #0891b2; /* cyan-600 */
+            --theme-button-hover: #0e7490; /* cyan-700 */
+            --theme-grid-image: linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+            --theme-clock-shadow: 0 0 15px rgba(110, 231, 255, 0.6), 0 0 30px rgba(34, 211, 238, 0.4);
+
+            /* Base Theme Colors (Dynamically changes the whole app background/foreground) */
+            --theme-background: #0d1117; /* Very Dark Blue */
+            --theme-glass-header-bg: rgba(26, 32, 44, 0.85); /* Dark Slate w/ opacity */
+            --theme-glass-card-bg: rgba(30, 41, 59, 0.8); /* Darker Slate w/ opacity */
+            --theme-default-text: #e2e8f0; /* Light Gray */
+            --theme-muted-text: #94a3b8; /* Slate Gray */
+        }
+        [data-theme="modern"] {
+            /* Modern Theme (Green/Emerald) */
+            --theme-primary: #34d399; /* emerald-400 */
+            --theme-primary-border: rgba(52, 211, 153, 0.3);
+            --theme-primary-border-hover: rgba(110, 236, 190, 0.6);
+            --theme-primary-glow: rgba(52, 211, 153, 0.2);
+            --theme-button-bg: #059669; /* emerald-600 */
+            --theme-button-hover: #047857; /* emerald-700 */
+            --theme-grid-image: linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px);
+            --theme-clock-shadow: 0 0 15px rgba(110, 236, 190, 0.6), 0 0 30px rgba(52, 211, 153, 0.4);
+
+            /* Base Theme Colors */
+            --theme-background: #111818; /* Darker green-tinted background */
+            --theme-glass-header-bg: rgba(22, 40, 40, 0.85);
+            --theme-glass-card-bg: rgba(30, 50, 50, 0.8);
+            --theme-default-text: #f0fdf4; /* Pale Green */
+            --theme-muted-text: #a7f3d0; /* Mint Green */
+        }
+        [data-theme="classic"] {
+            /* Classic Theme (Blue/Gray, less glow) */
+            --theme-primary: #60a5fa; /* blue-400 */
+            --theme-primary-border: rgba(96, 165, 250, 0.3);
+            --theme-primary-border-hover: rgba(147, 197, 253, 0.6);
+            --theme-primary-glow: rgba(96, 165, 250, 0.1);
+            --theme-button-bg: #2563eb; /* blue-600 */
+            --theme-button-hover: #1d4ed8; /* blue-700 */
+            --theme-grid-image: linear-gradient(rgba(203, 213, 225, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(203, 213, 225, 0.05) 1px, transparent 1px);
+            --theme-clock-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+
+            /* Base Theme Colors */
+            --theme-background: #1f2937; /* Dark Slate Gray */
+            --theme-glass-header-bg: rgba(40, 48, 60, 0.85);
+            --theme-glass-card-bg: rgba(55, 65, 81, 0.8);
+            --theme-default-text: #f3f4f6; /* White */
+            --theme-muted-text: #d1d5db; /* Light Gray */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--theme-background); /* NOW DYNAMIC */
+            color: var(--theme-default-text); /* NOW DYNAMIC */
+            /* Subtle background grid pattern - Now uses CSS Variable */
+            background-image: var(--theme-grid-image);
+            background-size: 30px 30px;
+        }
+
+        /* --- Modern 'Frosted Glass' & Neon Effect --- */
+        .glass-header {
+            background-color: var(--theme-glass-header-bg); /* NOW DYNAMIC */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--theme-primary-border);
+        }
+        .glass-card {
+            background-color: var(--theme-glass-card-bg); /* NOW DYNAMIC */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            border-radius: 16px; /* More rounded */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--theme-primary-border-hover);
+            box-shadow: 0 10px 30px var(--theme-primary-glow);
+        }
+
+        /* --- New Clock Widget Styles --- */
+        #clock-time {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 4.5rem; /* 72px */
+            line-height: 1.1;
+            color: var(--theme-default-text); /* Use default text color */
+            /* Text shadow is now the primary theme color glow */
+            text-shadow: var(--theme-clock-shadow);
+        }
+        #clock-date {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1.25rem; /* 20px */
+            color: var(--theme-primary); /* Uses primary accent color */
+            letter-spacing: 1px;
+        }
+
+        /* Custom scrollbar for better dark mode integration */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--theme-glass-card-bg); } /* DYNAMIC */
+        ::-webkit-scrollbar-thumb { background: var(--theme-muted-text); border-radius: 4px; } /* DYNAMIC */
+        ::-webkit-scrollbar-thumb:hover { background: var(--theme-default-text); }
+
+        .section-hidden { display: none; }
+        
+        /* Navigation link styling (CYAN Theme) */
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 6px;
+            color: var(--theme-muted-text) !important; /* Muted text color for inactive links */
+        }
+        .nav-link-active {
+            color: var(--theme-primary) !important; /* Primary accent color for active links */
+            font-weight: 600;
+            border-bottom-color: var(--theme-primary);
+        }
+        .nav-link:not(.nav-link-active):hover {
+            color: var(--theme-default-text) !important; /* Default text color on hover */
+            transform: translateY(-2px);
+        }
+
+        /* Helper class for Google Icons */
+        .material-symbols-outlined {
+            vertical-align: middle; /* Aligns icons nicely with text */
+        }
+        
+        /* New helper classes for theming */
+        .text-theme-primary { color: var(--theme-primary); }
+        .bg-theme-button { background-color: var(--theme-button-bg); }
+        .bg-theme-button:hover { background-color: var(--theme-button-hover); }
+        .border-theme-quicklink { border-color: var(--theme-primary); opacity: 0.7; }
+        .text-theme-link { color: var(--theme-primary); }
+        .text-theme-link:hover { filter: brightness(1.2); }
+        .footer-status { color: var(--theme-primary); }
+
+        /* NEW HELPER CLASSES */
+        .text-theme-default { color: var(--theme-default-text); }
+        .text-theme-muted { color: var(--theme-muted-text); }
+
+        /* Theme selector styling */
+        #theme-selector {
+            background-color: var(--theme-glass-card-bg); /* DYNAMIC */
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            color: var(--theme-default-text); /* DYNAMIC */
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            margin-left: 16px;
+        }
+        #theme-selector:focus {
+            outline: none;
+            border-color: var(--theme-primary-border-hover);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased" data-theme="tech">
+
+    <!-- Header Section (Sticky, Frosted Glass) -->
+    <header class="glass-header shadow-2xl p-4 md:p-6 sticky top-0 z-10">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+            
+            <!-- Left: Logo/Title -->
+            <div class="flex items-center mb-4 md:mb-0">
+                <h1 class="text-3xl md:text-4xl font-bold text-theme-primary">
+                    GameCo. <span class="text-theme-default">KioskOS</span>
+                </h1>
+            </div>
+
+            <!-- Right: Navigation Links -->
+            <nav class="flex space-x-4 md:space-x-8 text-lg p-1 rounded-xl">
+                <!-- Removed explicit text-gray-300; relying on custom CSS .nav-link (which uses muted color) -->
+                <!-- Home Icon -->
+                <a href="#" id="nav-home" class="nav-link nav-link-active flex items-center" data-section="home-section">
+                    <span class="material-symbols-outlined mr-2">home</span>
+                    <span>Home</span>
+                </a>
+                <!-- Apps Icon -->
+                <a href="#" id="nav-apps" class="nav-link flex items-center" data-section="apps-section">
+                    <span class="material-symbols-outlined mr-2">apps</span>
+                    <span>Apps</span>
+                </a>
+                <!-- Games Icon (Updated) -->
+                <a href="#" id="nav-games" class="nav-link flex items-center" data-section="games-section">
+                    <span class="material-symbols-outlined mr-2">stadia_controller</span>
+                    <span>Games</span>
+                </a>
+                <!-- Events Icon -->
+                <a href="#" id="nav-events" class="nav-link flex items-center" data-section="events-section">
+                    <span class="material-symbols-outlined mr-2">calendar_month</span>
+                    <span>Events</span>
+                </a>
+            </nav>
+
+            <!-- Theme Selector Dropdown -->
+            <div>
+                <select id="theme-selector" class="cursor-pointer">
+                    <option value="tech">Tech Theme</option>
+                    <option value="modern">Modern Theme</option>
+                    <option value="classic">Classic Theme</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+
+        <!-- Home Section (Dashboard View) -->
+        <div id="home-section" class="content-section">
+            
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left Column: Clock & Quick Access -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- New Clock Widget -->
+                    <section class="glass-card p-8 text-center lg:text-left">
+                        <h2 id="clock-time" class="mb-1">12:00 AM</h2>
+                        <p id="clock-date" class="uppercase">Loading...</p>
+                    </section>
+
+                    <!-- Quick-Links Widget -->
+                    <section>
+                        <!-- Updated title class to be theme-aware -->
+                        <h3 class="text-2xl font-bold text-theme-default mb-4">Quick Access</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Link 1: Song Request -->
+                            <a href="https://forms.gle/cVvdsmGadJ7xiUNs6" target="_blank" class="glass-card flex items-center p-5">
+                                <span class="material-symbols-outlined text-4xl text-sky-400 mr-4 flex-shrink-0">music_note</span>
+                                <div>
+                                    <p class="text-theme-default font-semibold text-lg">Submit Song Request</p>
+                                    <p class="text-theme-muted text-sm">For events with live DJing.</p>
+                                </div>
+                            </a>
+                            <!-- Link 2: Event Voting -->
+                            <a href="https://forms.gle/BnN3sPV2mjwiFcG49" target="_blank" class="glass-card flex items-center p-5">
+                                <span class="material-symbols-outlined text-4xl text-yellow-400 mr-4 flex-shrink-0">how_to_vote</span>
+                                <div>
+                                    <p class="text-theme-default font-semibold text-lg">Vote for Event</p>
+                                    <p class="text-theme-muted text-sm">Help us choose the next activity!</p>
+                                </div>
+                            </a>
+                            <!-- Link 3: DJ Request (Password) -->
+                            <button id="dj-request-button" class="glass-card flex items-center p-5 text-left">
+                                <span class="material-symbols-outlined text-4xl text-fuchsia-400 mr-4 flex-shrink-0">lock</span>
+                                <div>
+                                    <p class="text-theme-default font-semibold text-lg">Submit DJing Request (GameCo.+)</p>
+                                    <p class="text-theme-muted text-sm">Requires GameCo.+ credentials.</p>
+                                </div>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Featured -->
+                <div class="lg:col-span-1 space-y-6">
+                    <section>
+                        <!-- Updated title class to be theme-aware -->
+                        <h3 class="text-2xl font-bold text-theme-default mb-4">Featured App</h3>
+                        <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/5a4d7b/ffffff?text=TruFrame" alt="TruFrame" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h4 class="text-xl font-semibold text-theme-default mb-2">TruFrame</h4>
+                                <p class="text-theme-muted text-sm mb-4 line-clamp-2">
+                                    Our lightest program ever at 3kb! Use MOST websites without being tracked.
+                                </p>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white font-bold text-sm py-2 px-4 rounded-full shadow-md transition duration-200 w-full">
+                                    Get App
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- NEW SECTION FOR THE LINK -->
+                    <section>
+                        <!-- Updated title class to be theme-aware -->
+                        <h3 class="text-2xl font-bold text-theme-default mb-4">Official Site</h3>
+                        <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                            <img src="https://placehold.co/600x400/06b6d4/ffffff?text=GameCo+Projects" alt="GameCo Projects" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h4 class="text-xl font-semibold text-theme-default mb-2">GameCo Projects Homepage</h4>
+                                <p class="text-theme-muted text-sm mb-4 line-clamp-2">
+                                    Visit our official Google Site to see all our projects in one place.
+                                </p>
+                                <a href="https://sites.google.com/view/gameco-projects/home" target="_blank" class="block w-full text-center bg-theme-button hover:bg-theme-button-hover text-white font-bold text-sm py-2 px-4 rounded-full shadow-md transition duration-200">
+                                    Visit Site
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Section (Initially Hidden) -->
+        <div id="games-section" class="content-section section-hidden">
+            <section class="mb-8">
+                <!-- Updated title class to be theme-aware -->
+                <h3 class="text-3xl font-bold text-theme-default mb-6 text-center">Featured Games</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Game Card 1: Adventure of Lil Kong -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/312a6f/ffffff?text=Adventure+of+Lil+Kong" alt="Adventure of Lil Kong" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">Adventure of Lil Kong</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                Adventure of Lil Kong is a Banana Collection Simulation where you collect and harvest bananas to earn money and upgrade your banana monopoly!
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-emerald-400 font-bold text-sm">New Release</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Play Now</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Card 2: Recission Simulator -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/4c3d8e/ffffff?text=Recission+Simulator" alt="Recission Simulator" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">Recission Simulator</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                Recission Simulator is a simulation of an economic recession, teaching you the skills needed to make good choices so your money can last.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-orange-400 font-bold text-sm">Strategic Sim</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Play Now</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Card 3: Classic Games (6-Pack) -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/3498db/ffffff?text=Classic+Games+6-Pack" alt="Classic Games (6-Pack)" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">Classic Games (6-Pack)</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                The lightweight (28kb) 6-pack of classic games! Includes: Pong, Tetris, Memory Match, Hang-man, Whack-a-mole, and Tic-Tac-Toe.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-yellow-400 font-bold text-sm">Arcade Classics</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Play All</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Game Card: CardSandbox -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/8e44ad/ffffff?text=CardSandbox" alt="CardSandbox" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">CardSandbox</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                The lightweight (13kb) "digital board" where you can move and modify the colors, numbers, and suites of cards.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sky-400 font-bold text-sm">Card Utility</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Open Sandbox</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Apps Section (Initially Hidden) -->
+        <div id="apps-section" class="content-section section-hidden">
+            <section class="mb-8">
+                <!-- Updated title class to be theme-aware -->
+                <h3 class="text-3xl font-bold text-theme-default mb-6 text-center">Featured Apps</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- App Card 1: TruFrame -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/5a4d7b/ffffff?text=TruFrame" alt="TruFrame" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruFrame</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruFrame is our lightest program ever at 3kb! With our TruFrame you can use MOST websites without it being tracked by a school admin or IT manager.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-blue-400 font-bold text-sm">Web Utility</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Get App</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Card 2: TruPC -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/7a5a4a/ffffff?text=TruPC" alt="TruPC" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruPC</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruPC is our amazingly lightweight (17kb) PC Spec software designed to run in any OS! With OS detection; CPU, GPU and Memory detection.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-red-400 font-bold text-sm">System Tool</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Card 3: TruArt -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/6a8d7a/ffffff?text=TruArt" alt="TruArt" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruArt</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruArt is GameCo.'s lightweight art program (5kb) that can run locally. It also has the options to Import and Export images!
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-teal-400 font-bold text-sm">Image Editor</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Open Editor</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Card 4: TruPixel -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/8c7e9a/ffffff?text=TruPixel" alt="TruPixel" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruPixel</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruPixel is GameCo.'s lightweight pixel art program (4kb) that can run locally within the confines of Chrome (Google).
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-orange-400 font-bold text-sm">Pixel Art Tool</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Start Drawing</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Card 5: TruCode -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/9b59b6/ffffff?text=TruCode" alt="TruCode" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruCode</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruCode is a light (4kb) HTML, CSS, and JS script runner. The image shows HTML code being rendered using TruCode.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-blue-400 font-bold text-sm">Code Runner</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Run Script</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Card 6: TruGeneration -->
+                    <div class="glass-card rounded-xl shadow-xl overflow-hidden">
+                        <img src="https://placehold.co/600x400/e74c3c/ffffff?text=TruGeneration" alt="TruGeneration" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-theme-default mb-2">TruGeneration</h4>
+                            <p class="text-theme-muted text-sm mb-4 line-clamp-3">
+                                TruGeneration is a "just for fun" web app that allows the user to generate as many characters as you want!
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-rose-400 font-bold text-sm">Fun Tool</span>
+                                <button class="bg-theme-button hover:bg-theme-button-hover text-white text-sm font-bold py-2 px-4 rounded-full shadow-md transition duration-200">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Events Section (Initially Hidden) - REDESIGNED & FIXED -->
+        <div id="events-section" class="content-section section-hidden">
+            <section>
+                <!-- Updated title class to be theme-aware -->
+                <h3 class="text-3xl font-bold text-theme-default mb-6 text-center">Event Feed</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Event Card 1: TruStore Release -->
+                    <div class="glass-card p-6 flex flex-col">
+                        <p class="text-sm font-semibold text-emerald-400 mb-1">MAJOR LAUNCH</p>
+                        <h4 class="text-2xl font-semibold text-theme-default mb-2">TruStore - Full Release</h4>
+                        <p class="text-theme-muted text-sm mb-3 font-medium flex items-center">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 1.1rem;">calendar_month</span>
+                            <time datetime="2025-12-31">December 31, 2025</time>
+                        </p>
+                        <p class="text-theme-default leading-relaxed mb-4">
+                            Get ready for the full release of **TruStore**, our new digital marketplace! It will replace WinWip by the end of 2025.
+                        </p>
+                        <button class="text-theme-link hover:text-theme-link font-semibold mt-auto flex items-center text-sm">
+                            Learn More
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward_ios</span>
+                        </button>
+                    </div>
+
+                    <!-- Event Card 2: Community Game Night -->
+                    <div class="glass-card p-6 flex flex-col">
+                        <p class="text-sm font-semibold text-sky-400 mb-1">COMMUNITY EVENT</p>
+                        <h4 class="text-2xl font-semibold text-theme-default mb-2">Community Game Night</h4>
+                        <p class="text-theme-muted text-sm mb-3 font-medium flex items-center">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 1.1rem;">schedule</span>
+                            <time datetime="2025-11-15T19:00">November 15, 2025 @ 7:00 PM</time>
+                        </p>
+                        <p class="text-theme-default leading-relaxed mb-4">
+                            Join us for a live community game night, hosted on our Discord! We'll be playing the Classic 6-Pack. Prizes included!
+                        </p>
+                        <button class="text-theme-link hover:text-theme-link font-semibold mt-auto flex items-center text-sm">
+                            Join Discord
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward_ios</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Event Card 3: Developer Q&A (NEW) -->
+                    <div class="glass-card p-6 flex flex-col">
+                        <p class="text-sm font-semibold text-orange-400 mb-1">LIVE STREAM</p>
+                        <h4 class="text-2xl font-semibold text-theme-default mb-2">Developer Q&A</h4>
+                        <p class="text-theme-muted text-sm mb-3 font-medium flex items-center">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 1.1rem;">schedule</span>
+                            <time datetime="2025-11-28T16:00">November 28, 2025 @ 4:00 PM</time>
+                        </p>
+                        <p class="text-theme-default leading-relaxed mb-4">
+                            Join the lead developers of 'Recission Simulator' for a live Q&A session. Ask your questions and get a sneak peek at upcoming features!
+                        </p>
+                        <button class="text-theme-link hover:text-theme-link font-semibold mt-auto flex items-center text-sm">
+                            Tune In
+                            <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward_ios</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Event Card 4: Quick Links (was 3) -->
+                    <!-- Note: bg-gray-900/50 and border-theme-quicklink still give it a slightly unique background -->
+                    <div class="glass-card p-6 bg-gray-900/50 border-theme-quicklink">
+                        <h4 class="text-2xl font-semibold text-theme-default mb-4">Event Quick Links</h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="https://forms.gle/cVvdsmGadJ7xiUNs6" target="_blank" class="text-lg text-theme-link hover:text-theme-link transition duration-300 ease-in-out font-medium flex items-center">
+                                    <span class="material-symbols-outlined mr-3">music_note</span>
+                                    Submit Song Request
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://forms.gle/BnN3sPV2mjwiFcG49" target="_blank" class="text-lg text-theme-link hover:text-theme-link transition duration-300 ease-in-out font-medium flex items-center">
+                                    <span class="material-symbols-outlined mr-3">how_to_vote</span>
+                                    Vote for an event!
+                                </a>
+                            </li>
+                            <li>
+                                <button id="dj-request-button-events" class="text-lg text-theme-link hover:text-theme-link transition duration-300 ease-in-out font-medium flex items-center text-left">
+                                    <span class="material-symbols-outlined mr-3 text-fuchsia-400">lock</span>
+                                    Submit DJing Request (GameCo.+)
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="glass-header p-4 md:p-6 mt-8">
+        <!-- Removed explicit text-gray-400, relying on body color: var(--theme-default-text) -->
+        <div class="container mx-auto text-center text-sm text-theme-muted">
+            <span class="font-bold footer-status">STATUS:</span> OPERATIONAL | &copy; 2025 GameCo. LLC. | All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- Password Login Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="glass-card p-8 rounded-lg shadow-2xl w-full max-w-sm text-center transform transition-all duration-300 scale-95" id="login-modal-content">
+            <h3 class="text-2xl font-bold text-theme-default mb-4">GameCo.+ Access</h3>
+            <p class="text-theme-default mb-6">Please enter your credentials to continue.</p>
+            <form id="login-form">
+                <div class="space-y-4">
+                    <!-- Note: Input backgrounds will use dynamic card background or stay dark/opaque -->
+                    <input type="text" id="username-input" placeholder="Username" class="w-full p-3 rounded-md bg-gray-900/50 border border-gray-600 text-theme-default focus:outline-none focus:border-theme-primary">
+                    <input type="password" id="password-input" placeholder="Password" class="w-full p-3 rounded-md bg-gray-900/50 border border-gray-600 text-theme-default focus:outline-none focus:border-theme-primary">
+                </div>
+                <p id="login-error" class="text-red-400 text-sm mt-4 h-5"></p> <!-- Error message placeholder -->
+                <div class="flex gap-4 mt-6">
+                    <button type="button" id="login-cancel" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="w-full bg-theme-button hover:bg-theme-button-hover text-white font-bold py-2 px-4 rounded-full transition duration-200">
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Clock Functionality ---
+        function updateClock() {
+            const now = new Date();
+            
+            // Format time as HH:MM AM/PM (No seconds for a cleaner look)
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            // Format date as Day, Month DD, YYYY
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: '2-digit',
+                year: 'numeric'
+            });
+
+            const clockTimeEl = document.getElementById('clock-time');
+            const clockDateEl = document.getElementById('clock-date');
+            
+            if (clockTimeEl) clockTimeEl.textContent = timeString;
+            if (clockDateEl) clockDateEl.textContent = dateString;
+        }
+
+        // Update the clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // --- Navigation Functionality ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('nav a.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+            const homeSection = document.getElementById('home-section');
+
+            function showSection(sectionId) {
+                // Hide all sections
+                sections.forEach(section => {
+                    section.classList.add('section-hidden');
+                });
+
+                // Show the requested section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('section-hidden');
+                }
+
+                // Scroll to the top
+                window.scrollTo(0, 0);
+
+                // Update active navigation link styling
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-link-active');
+                    if (link.dataset.section === sectionId) {
+                        link.classList.add('nav-link-active');
+                    }
+                });
+            }
+
+            // Add click event listeners to navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent default link behavior
+                    const sectionToShow = event.target.closest('a').dataset.section;
+                    if (sectionToShow) {
+                        showSection(sectionToShow);
+                    }
+                });
+            });
+
+            // Initially show the home section
+            showSection('home-section');
+            
+            // --- Theme Switcher Functionality ---
+            const themeSelector = document.getElementById('theme-selector');
+            themeSelector.addEventListener('change', (event) => {
+                // This updates the data-theme attribute on the body, which applies the new CSS variables
+                document.body.dataset.theme = event.target.value;
+            });
+
+            // --- Password Modal Functionality ---
+            const loginModal = document.getElementById('login-modal');
+            const loginModalContent = document.getElementById('login-modal-content');
+            const loginForm = document.getElementById('login-form');
+            const usernameInput = document.getElementById('username-input');
+            const passwordInput = document.getElementById('password-input');
+            const loginError = document.getElementById('login-error');
+            const loginCancel = document.getElementById('login-cancel');
+            const djRequestButton = document.getElementById('dj-request-button');
+            const djRequestButtonEvents = document.getElementById('dj-request-button-events');
+
+            const djUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScC2Msme3HCtPJ1sT5D1QJhyhSUces_qCjVjZ0OP2c-ojqlfA/viewform?usp=pp_url&entry.2141133868=%23001+(USA)';
+
+            function showLoginModal() {
+                // FIX: Ensure 'hidden' is used for modal visibility
+                loginModal.classList.remove('hidden');
+                setTimeout(() => loginModalContent.classList.add('scale-100'), 10); // Animate in
+            }
+
+            function hideLoginModal() {
+                loginModalContent.classList.remove('scale-100');
+                loginError.textContent = '';
+                usernameInput.value = '';
+                passwordInput.value = '';
+                setTimeout(() => loginModal.classList.add('hidden'), 300);
+            }
+
+            djRequestButton.addEventListener('click', showLoginModal);
+            djRequestButtonEvents.addEventListener('click', showLoginModal);
+            loginCancel.addEventListener('click', hideLoginModal);
+
+            loginForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+
+                if (username === 'User1' && password === 'KioskOS') {
+                    window.open(djUrl, '_blank', 'noopener,noreferrer');
+                    hideLoginModal();
+                } else {
+                    loginError.textContent = 'Invalid username or password.';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
